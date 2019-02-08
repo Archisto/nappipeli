@@ -1,0 +1,11 @@
+<resources>
+    <string name="app_name">Nappipeli</string>
+    <string name="title_home">Home</string>
+    <string name="title_dashboard">Dashboard</string>
+    <string name="title_notifications">Notifications</string>
+    <string name="title_increase">Increase</string>
+    <string name="title_winners">Winners</string>
+    <string name="title_username">Set Nickname</string>
+    <string name="string_username">Nickname: %s</string>
+    <string name="string_counter">-- %d --</string>
+</resources>
