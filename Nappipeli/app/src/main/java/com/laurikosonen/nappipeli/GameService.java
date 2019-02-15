@@ -11,9 +11,12 @@ public interface GameService {
     @GET("winners")
     Call<List<Winner>> winners();
 
+    @POST("winners/new")
+    Call<Winner> create(@Body Winner winner);
+
     @GET("counter")
     Call<Counter> getCounter();
 
     @POST("counter/raise")
-    Call<Counter> modifyCounter(@Body int value);
+    Call<Counter> raiseCounter();
 }

@@ -1,7 +1,9 @@
 package com.laurikosonen.nappipeli;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.design.internal.NavigationMenu;
 import android.support.design.widget.BottomNavigationView;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
@@ -9,31 +11,22 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
-import android.widget.EditText;
 
-import java.util.List;
-
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
 public class MainActivity extends AppCompatActivity {
 
     private int counter;
-    private String username = "Anonymous";
-    private TextView mTextMessage;
-    private TextView usernameText;
-    private TextView herokuText;
+    private String nickname = "Anonymous";
+    private TextView counterText;
+    private TextView nicknameText;
     private TextView prizeText;
     private TextView pressesText;
-    private TextView allWinners;
-    private Button herokuButton;
-    private EditText usernameInput;
+    private Button increaseButton;
+    private BottomNavigationView navigation;
 
     private GameService service;
-    private BookService serviceTest;
 
     private static final int pressesForPrize1 = 100;
     private static final int pressesForPrize2 = 200;
@@ -46,14 +39,13 @@ public class MainActivity extends AppCompatActivity {
         public boolean onNavigationItemSelected(@NonNull MenuItem item) {
             switch (item.getItemId()) {
                 case R.id.navigation_increase:
-                    raiseCounter();
+                    onMainScreenButtonClick();
                     return true;
                 case R.id.navigation_username:
-                    username += "" + counter;
-                    usernameText.setText(String.format(getString(R.string.string_username), username));
+                    onSetNicknameButtonClick();
                     return true;
                 case R.id.navigation_winners:
-                    OnWinnersButtonClick();
+                    onWinnersButtonClick();
                     return true;
             }
             return false;
@@ -65,83 +57,29 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        mTextMessage = (TextView) findViewById(R.id.text_counter);
-        usernameText = (TextView) findViewById(R.id.text_username);
-        herokuButton = (Button) findViewById(R.id.button_hello);
-        usernameInput = (EditText) findViewById(R.id.input_username);
-        herokuText = (TextView) findViewById(R.id.text_hello);
+        increaseButton = (Button) findViewById(R.id.button_increase);
+        counterText = (TextView) findViewById(R.id.text_counter);
         prizeText = (TextView) findViewById(R.id.text_prize);
         pressesText = (TextView) findViewById(R.id.text_pressesUntilPrize);
-        allWinners = (TextView) findViewById(R.id.text_allWinners);
-        mTextMessage.setText(String.format(getString(R.string.string_counter), counter));
-        usernameText.setText(String.format(getString(R.string.string_username), username));
+        navigation = (BottomNavigationView) findViewById(R.id.navigation);
+        nicknameText = (TextView) findViewById(R.id.text_nickname);
+        nicknameText.setText(String.format(getString(R.string.string_username), nickname));
+        counterText.setText(String.format(getString(R.string.string_counter), counter));
         prizeText.setText("");
         pressesText.setText(String.format(getString(R.string.string_pressesUntilPrize),
                 getPressesUntilNextPrize()));
+        navigation.setSelectedItemId(R.id.navigation_increase);
+
         BottomNavigationView navigation = (BottomNavigationView) findViewById(R.id.navigation);
         navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
+
+        initIncreaseButton();
 
         Retrofit retrofit = new Retrofit.Builder()
                 .baseUrl("https://nappipeli-db.herokuapp.com/")
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();
         service = retrofit.create(GameService.class);
-
-        Retrofit retrofit2 = new Retrofit.Builder()
-                .baseUrl("https://ratpack-demo-db.herokuapp.com/")
-                .addConverterFactory(GsonConverterFactory.create())
-                .build();
-        serviceTest = retrofit2.create(BookService.class);
-        herokuText.setText("Empty");
-
-        herokuButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Book book = new Book(usernameInput.getText().toString());
-                Call<Book> createCall = serviceTest.create(book);
-                createCall.enqueue(new Callback<Book>() {
-                    @Override
-                    public void onResponse(Call<Book> _, Response<Book> resp) {
-                        Book newBook = resp.body();
-                        herokuText.setText("Created Book with ISBN: " + newBook.isbn);
-                    }
-
-                    @Override
-                    public void onFailure(Call<Book> _, Throwable t) {
-                        t.printStackTrace();
-                        herokuText.setText(t.getMessage());
-                    }
-                });
-            }
-        });
-
-//        herokuButton.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                Call<ResponseBody> call = serviceTest.hello();
-//                call.enqueue(new Callback<ResponseBody>() {
-//                    @Override
-//                    public void onResponse(Call<ResponseBody> c,
-//                                           Response<ResponseBody> response) {
-//                        try {
-//                            herokuText.setText(response.body().string());
-//                        } catch (IOException e) {
-//                            e.printStackTrace();
-//                            herokuText.setText(e.getMessage());
-//                        } catch (NullPointerException e) {
-//                            e.printStackTrace();
-//                            herokuText.setText(e.getMessage());
-//                        }
-//                    }
-//
-//                    @Override
-//                    public void onFailure(Call<ResponseBody> c, Throwable t) {
-//                        t.printStackTrace();
-//                        herokuText.setText(t.getMessage());
-//                    }
-//                });
-//            }
-//        });
     }
 
     private void raiseCounter() {
@@ -159,7 +97,7 @@ public class MainActivity extends AppCompatActivity {
 
         pressesText.setText(String.format(getString(R.string.string_pressesUntilPrize),
                 getPressesUntilNextPrize()));
-        //mTextMessage.setText(String.format(getString(R.string.string_counter), counter));
+        counterText.setText(String.format(getString(R.string.string_counter), counter));
     }
 
     private void givePrize(int prizeTier) {
@@ -187,23 +125,27 @@ public class MainActivity extends AppCompatActivity {
         return pressesForPrize1 - counter % pressesForPrize1;
     }
 
-    private void OnWinnersButtonClick() {
-        Call<List<Book>> createCall = serviceTest.all();
-        createCall.enqueue(new Callback<List<Book>>() {
+    private void initIncreaseButton() {
+        increaseButton.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onResponse(Call<List<Book>> c, Response<List<Book>> resp) {
-                allWinners.setText("ALL BOOKS by ISBN:\n");
-                for (Book b : resp.body()) {
-                    allWinners.append(b.isbn + "\n");
-                }
-            }
-
-            @Override
-            public void onFailure(Call<List<Book>> c, Throwable t) {
-                t.printStackTrace();
-                allWinners.setText(t.getMessage());
+            public void onClick(View v) {
+                raiseCounter();
             }
         });
+    }
+
+    private void onMainScreenButtonClick() {
+        // Does nothing
+    }
+
+    private void onSetNicknameButtonClick() {
+        startActivity(new Intent(MainActivity.this, SetNicknameActivity.class));
+    }
+
+    private void onWinnersButtonClick() {
+        startActivity(new Intent(MainActivity.this, WinnersActivity.class));
+
+        // First test
 //        Call<ResponseBody> call = serviceTest.hello();
 //        call.enqueue(new Callback<ResponseBody>() {
 //            @Override

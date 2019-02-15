@@ -2,7 +2,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.laurikosonen.nappipeli">
 
-    <uses-permission android:name="android.permission.INTERNET"/>
+    <uses-permission android:name="android.permission.INTERNET" />
 
     <application
         android:allowBackup="true"
@@ -20,6 +20,12 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity
+            android:name=".WinnersActivity"
+            android:label="@string/title_activity_winners" />
+        <activity
+            android:name=".SetNicknameActivity"
+            android:label="@string/title_activity_set_nickname"></activity>
     </application>
 
 </manifest>

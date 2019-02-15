@@ -11,4 +11,9 @@
     <string name="string_prize">You won %s</string>
     <string name="string_pressesUntilPrize">%d more presses until next prize!</string>
     <string name="string_inputUsername">your nickname</string>
+    <string name="string_submit">Submit</string>
+    <string name="title_activity_winners">WinnersActivity</string>
+    <string name="string_refresh">Refresh</string>
+    <string name="title_activity_set_nickname">SetNicknameActivity</string>
+    <string name="string_increase">Increase Value</string>
 </resources>
