@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
@@ -20,7 +21,7 @@ import retrofit2.converter.gson.GsonConverterFactory;
 
 public class WinnersActivity extends AppCompatActivity {
 
-    private String nickname = "Anonymous";
+    private String nickname;
     private TextView allWinners;
     private Button refreshButton;
     private TextView nicknameText;
@@ -34,10 +35,10 @@ public class WinnersActivity extends AppCompatActivity {
         @Override
         public boolean onNavigationItemSelected(@NonNull MenuItem item) {
             switch (item.getItemId()) {
-                case R.id.navigation_increase:
+                case R.id.navigation_home:
                     onMainScreenButtonClick();
                     return true;
-                case R.id.navigation_username:
+                case R.id.navigation_nickname:
                     onSetNicknameButtonClick();
                     return true;
                 case R.id.navigation_winners:
@@ -55,9 +56,8 @@ public class WinnersActivity extends AppCompatActivity {
 
         allWinners = (TextView) findViewById(R.id.text_allWinners);
         refreshButton = (Button) findViewById(R.id.button_refresh);
-        navigation = (BottomNavigationView) findViewById(R.id.navigation);
         nicknameText = (TextView) findViewById(R.id.text_nickname);
-        nicknameText.setText(String.format(getString(R.string.string_username), nickname));
+        navigation = (BottomNavigationView) findViewById(R.id.navigation);
         navigation.setSelectedItemId(R.id.navigation_winners);
 
         BottomNavigationView navigation = (BottomNavigationView) findViewById(R.id.navigation);
@@ -69,19 +69,36 @@ public class WinnersActivity extends AppCompatActivity {
                 .build();
         serviceTest = retrofit2.create(BookService.class);
 
+        initNickname();
         initRefreshButton();
     }
 
     private void onMainScreenButtonClick() {
-        startActivity(new Intent(WinnersActivity.this, MainActivity.class));
+        Intent i = new Intent(WinnersActivity.this, MainActivity.class);
+        i.putExtra("nickname", nickname);
+        startActivity(i);
     }
 
     private void onSetNicknameButtonClick() {
-        startActivity(new Intent(WinnersActivity.this, SetNicknameActivity.class));
+        Intent i = new Intent(WinnersActivity.this, SetNicknameActivity.class);
+        i.putExtra("nickname", nickname);
+        startActivity(i);
     }
 
     private void onWinnersButtonClick() {
         // Does nothing
+    }
+
+    private void initNickname() {
+        Bundle extras = getIntent().getExtras();
+        Log.d("npeli", "extras exist: " + (extras != null));
+        if (extras != null) {
+            nickname = extras.getString("nickname");
+        }
+        else {
+            nickname = "Anonymous";
+        }
+        nicknameText.setText(String.format(getString(R.string.string_username), nickname));
     }
 
     private void initRefreshButton() {

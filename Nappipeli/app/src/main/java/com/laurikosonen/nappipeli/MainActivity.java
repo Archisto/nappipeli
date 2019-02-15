@@ -18,7 +18,7 @@ import retrofit2.converter.gson.GsonConverterFactory;
 public class MainActivity extends AppCompatActivity {
 
     private int counter;
-    private String nickname = "Anonymous";
+    private String nickname;
     private TextView counterText;
     private TextView nicknameText;
     private TextView prizeText;
@@ -38,10 +38,10 @@ public class MainActivity extends AppCompatActivity {
         @Override
         public boolean onNavigationItemSelected(@NonNull MenuItem item) {
             switch (item.getItemId()) {
-                case R.id.navigation_increase:
+                case R.id.navigation_home:
                     onMainScreenButtonClick();
                     return true;
-                case R.id.navigation_username:
+                case R.id.navigation_nickname:
                     onSetNicknameButtonClick();
                     return true;
                 case R.id.navigation_winners:
@@ -63,23 +63,23 @@ public class MainActivity extends AppCompatActivity {
         pressesText = (TextView) findViewById(R.id.text_pressesUntilPrize);
         navigation = (BottomNavigationView) findViewById(R.id.navigation);
         nicknameText = (TextView) findViewById(R.id.text_nickname);
-        nicknameText.setText(String.format(getString(R.string.string_username), nickname));
         counterText.setText(String.format(getString(R.string.string_counter), counter));
         prizeText.setText("");
         pressesText.setText(String.format(getString(R.string.string_pressesUntilPrize),
                 getPressesUntilNextPrize()));
-        navigation.setSelectedItemId(R.id.navigation_increase);
+        navigation.setSelectedItemId(R.id.navigation_home);
 
         BottomNavigationView navigation = (BottomNavigationView) findViewById(R.id.navigation);
         navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
-
-        initIncreaseButton();
 
         Retrofit retrofit = new Retrofit.Builder()
                 .baseUrl("https://nappipeli-db.herokuapp.com/")
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();
         service = retrofit.create(GameService.class);
+
+        initNickname();
+        initIncreaseButton();
     }
 
     private void raiseCounter() {
@@ -125,6 +125,19 @@ public class MainActivity extends AppCompatActivity {
         return pressesForPrize1 - counter % pressesForPrize1;
     }
 
+    private void initNickname() {
+        Bundle extras = getIntent().getExtras();
+        Log.d("npeli", "extras exist: " + (extras != null));
+        if (extras != null) {
+            nickname = extras.getString("nickname");
+            nicknameText.setText(nickname);
+        }
+        else {
+            nickname = "Anonymous";
+        }
+        nicknameText.setText(String.format(getString(R.string.string_username), nickname));
+    }
+
     private void initIncreaseButton() {
         increaseButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -139,11 +152,15 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void onSetNicknameButtonClick() {
-        startActivity(new Intent(MainActivity.this, SetNicknameActivity.class));
+        Intent i = new Intent(MainActivity.this, SetNicknameActivity.class);
+        i.putExtra("nickname", nickname);
+        startActivity(i);
     }
 
     private void onWinnersButtonClick() {
-        startActivity(new Intent(MainActivity.this, WinnersActivity.class));
+        Intent i = new Intent(MainActivity.this, WinnersActivity.class);
+        i.putExtra("nickname", nickname);
+        startActivity(i);
 
         // First test
 //        Call<ResponseBody> call = serviceTest.hello();
