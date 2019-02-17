@@ -27,6 +27,7 @@ public class WinnersActivity extends AppCompatActivity {
     private TextView nicknameText;
     private BottomNavigationView navigation;
 
+    private GameService service;
     private BookService serviceTest;
 
     private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener
@@ -36,14 +37,13 @@ public class WinnersActivity extends AppCompatActivity {
         public boolean onNavigationItemSelected(@NonNull MenuItem item) {
             switch (item.getItemId()) {
                 case R.id.navigation_home:
-                    onMainScreenButtonClick();
+                    onHomeNavSelected();
                     return true;
                 case R.id.navigation_nickname:
-                    onSetNicknameButtonClick();
+                    onSetNicknameNavSelected();
                     return true;
                 case R.id.navigation_winners:
-                    onWinnersButtonClick();
-                    return true;
+                    return false;
             }
             return false;
         }
@@ -63,35 +63,50 @@ public class WinnersActivity extends AppCompatActivity {
         BottomNavigationView navigation = (BottomNavigationView) findViewById(R.id.navigation);
         navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
 
-        Retrofit retrofit2 = new Retrofit.Builder()
-                .baseUrl("https://ratpack-demo-db.herokuapp.com/")
-                .addConverterFactory(GsonConverterFactory.create())
-                .build();
-        serviceTest = retrofit2.create(BookService.class);
-
+        initService();
         initNickname();
         initRefreshButton();
     }
 
-    private void onMainScreenButtonClick() {
+    private void onHomeNavSelected() {
         Intent i = new Intent(WinnersActivity.this, MainActivity.class);
         i.putExtra("nickname", nickname);
         startActivity(i);
     }
 
-    private void onSetNicknameButtonClick() {
+    private void onSetNicknameNavSelected() {
         Intent i = new Intent(WinnersActivity.this, SetNicknameActivity.class);
         i.putExtra("nickname", nickname);
         startActivity(i);
     }
 
-    private void onWinnersButtonClick() {
-        // Does nothing
+    /**
+     * Takes the user to the main activity.
+     */
+    @Override
+    public void onBackPressed() {
+        finish();
+        Intent i = new Intent(WinnersActivity.this, MainActivity.class);
+        i.putExtra("nickname", nickname);
+        startActivity(i);
+    }
+
+    private void initService() {
+        Retrofit retrofit = new Retrofit.Builder()
+                .baseUrl("https://nappipeli-db.herokuapp.com/")
+                .addConverterFactory(GsonConverterFactory.create())
+                .build();
+        service = retrofit.create(GameService.class);
+
+        Retrofit retrofit2 = new Retrofit.Builder()
+                .baseUrl("https://ratpack-demo-db.herokuapp.com/")
+                .addConverterFactory(GsonConverterFactory.create())
+                .build();
+        serviceTest = retrofit2.create(BookService.class);
     }
 
     private void initNickname() {
         Bundle extras = getIntent().getExtras();
-        Log.d("npeli", "extras exist: " + (extras != null));
         if (extras != null) {
             nickname = extras.getString("nickname");
         }
@@ -105,22 +120,45 @@ public class WinnersActivity extends AppCompatActivity {
         refreshButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Call<List<Book>> createCall = serviceTest.all();
-                createCall.enqueue(new Callback<List<Book>>() {
-                    @Override
-                    public void onResponse(Call<List<Book>> c, Response<List<Book>> resp) {
-                        allWinners.setText("ALL BOOKS by ISBN:\n");
-                        for (Book b : resp.body()) {
-                            allWinners.append(b.isbn + "\n");
-                        }
-                    }
+                showAllWinnersFromDatabase();
+            }
+        });
+    }
 
-                    @Override
-                    public void onFailure(Call<List<Book>> c, Throwable t) {
-                        t.printStackTrace();
-                        allWinners.setText(t.getMessage());
-                    }
-                });
+    private void showAllWinnersFromDatabase() {
+        Call<List<Winner>> createCall = service.winners();
+        createCall.enqueue(new Callback<List<Winner>>() {
+            @Override
+            public void onResponse(Call<List<Winner>> c, Response<List<Winner>> resp) {
+                allWinners.setText("ALL WINNERS by NICKNAME:\n");
+                for (Winner w : resp.body()) {
+                    allWinners.append(w.nickname + "\n");
+                }
+            }
+
+            @Override
+            public void onFailure(Call<List<Winner>> c, Throwable t) {
+                t.printStackTrace();
+                allWinners.setText(t.getMessage());
+            }
+        });
+    }
+
+    private void showAllBooksFromDatabase() {
+        Call<List<Book>> createCall = serviceTest.all();
+        createCall.enqueue(new Callback<List<Book>>() {
+            @Override
+            public void onResponse(Call<List<Book>> c, Response<List<Book>> resp) {
+                allWinners.setText("ALL BOOKS by ISBN:\n");
+                for (Book b : resp.body()) {
+                    allWinners.append(b.isbn + "\n");
+                }
+            }
+
+            @Override
+            public void onFailure(Call<List<Book>> c, Throwable t) {
+                t.printStackTrace();
+                allWinners.setText(t.getMessage());
             }
         });
     }

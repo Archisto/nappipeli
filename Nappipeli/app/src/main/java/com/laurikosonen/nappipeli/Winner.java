@@ -7,19 +7,20 @@ public class Winner {
     @SerializedName("id")
     int id;
 
-    @SerializedName("username")
-    String username;
+    @SerializedName("nickname")
+    String nickname;
 
-    @SerializedName("prize")
-    int prize;
+    @SerializedName("prizetier")
+    int prizeTier;
 
-    public Winner(int id, String username, int prize) {
+    public Winner(int id, String nickname, int prizeTier) {
         this.id = id;
-        this.username = username;
+        this.nickname = nickname;
+        this.prizeTier = prizeTier;
     }
 
-    public Winner(String username, int prize) {
-        this.username = username;
-        this.prize = prize;
+    public Winner(String nickname, int prizeTier) {
+        this.nickname = nickname;
+        this.prizeTier = prizeTier;
     }
 }

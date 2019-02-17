@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
+import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.MenuItem;
@@ -12,25 +13,15 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
-import retrofit2.Retrofit;
-import retrofit2.converter.gson.GsonConverterFactory;
-
 public class SetNicknameActivity extends AppCompatActivity {
 
-    private final int nicknameMaxLength = 13;
+    private final int nicknameMaxLength = 12;
 
     private String nickname;
     private Button submitButton;
     private EditText nicknameInput;
     private TextView nicknameText;
-    private Button herokuButton;
-    private TextView herokuText;
     private BottomNavigationView navigation;
-
-    private BookService serviceTest;
 
     private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener
             = new BottomNavigationView.OnNavigationItemSelectedListener() {
@@ -39,13 +30,12 @@ public class SetNicknameActivity extends AppCompatActivity {
         public boolean onNavigationItemSelected(@NonNull MenuItem item) {
             switch (item.getItemId()) {
                 case R.id.navigation_home:
-                    onMainScreenButtonClick();
+                    onHomeNavSelected();
                     return true;
                 case R.id.navigation_nickname:
-                    onSetNicknameButtonClick();
-                    return true;
+                    return false;
                 case R.id.navigation_winners:
-                    onWinnersButtonClick();
+                    onWinnersNavSelected();
                     return true;
             }
             return false;
@@ -59,9 +49,6 @@ public class SetNicknameActivity extends AppCompatActivity {
 
         submitButton = (Button) findViewById(R.id.button_submit);
         nicknameInput = (EditText) findViewById(R.id.input_username);
-        herokuButton = (Button) findViewById(R.id.button_heroku);
-        herokuText = (TextView) findViewById(R.id.text_hello);
-        herokuText.setText("Empty");
         nicknameText = (TextView) findViewById(R.id.text_nickname);
         navigation = (BottomNavigationView) findViewById(R.id.navigation);
         navigation.setSelectedItemId(R.id.navigation_nickname);
@@ -69,36 +56,35 @@ public class SetNicknameActivity extends AppCompatActivity {
         BottomNavigationView navigation = (BottomNavigationView) findViewById(R.id.navigation);
         navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
 
-        Retrofit retrofit2 = new Retrofit.Builder()
-                .baseUrl("https://ratpack-demo-db.herokuapp.com/")
-                .addConverterFactory(GsonConverterFactory.create())
-                .build();
-        serviceTest = retrofit2.create(BookService.class);
-
         initNickname();
         initSubmitButton();
-        initHerokuButton();
     }
 
-    private void onMainScreenButtonClick() {
+    private void onHomeNavSelected() {
         Intent i = new Intent(SetNicknameActivity.this, MainActivity.class);
         i.putExtra("nickname", nickname);
         startActivity(i);
     }
 
-    private void onSetNicknameButtonClick() {
-        // Does nothing
+    private void onWinnersNavSelected() {
+        Intent i = new Intent(SetNicknameActivity.this, WinnersActivity.class);
+        i.putExtra("nickname", nickname);
+        startActivity(i);
     }
 
-    private void onWinnersButtonClick() {
-        Intent i = new Intent(SetNicknameActivity.this, WinnersActivity.class);
+    /**
+     * Takes the user to the main activity.
+     */
+    @Override
+    public void onBackPressed() {
+        finish();
+        Intent i = new Intent(SetNicknameActivity.this, MainActivity.class);
         i.putExtra("nickname", nickname);
         startActivity(i);
     }
 
     private void initNickname() {
         Bundle extras = getIntent().getExtras();
-        Log.d("npeli", "extras exist: " + (extras != null));
         if (extras != null) {
             nickname = extras.getString("nickname");
         }
@@ -112,39 +98,30 @@ public class SetNicknameActivity extends AppCompatActivity {
         submitButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                setNickname();
+                setNickname(v);
             }
         });
     }
 
-    private void setNickname() {
+    private void setNickname(View v) {
         String newNick = nicknameInput.getText().toString();
-        if (newNick.length() <= nicknameMaxLength) {
+        if (newNick.length() == 0) {
+            Snackbar snackbar = Snackbar.make(
+                    v,
+                    getString(R.string.string_nickname_empty),
+                    Snackbar.LENGTH_SHORT);
+            snackbar.show();
+        }
+        else if (newNick.length() > nicknameMaxLength) {
+            Snackbar snackbar = Snackbar.make(
+                    v,
+                    String.format(getString(R.string.string_nickname_too_long), nicknameMaxLength),
+                    Snackbar.LENGTH_SHORT);
+            snackbar.show();
+        }
+        else {
             nickname = newNick;
             nicknameText.setText(String.format(getString(R.string.string_username), nickname));
         }
-    }
-
-    private void initHerokuButton() {
-        herokuButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Book book = new Book(nickname);
-                Call<Book> createCall = serviceTest.create(book);
-                createCall.enqueue(new Callback<Book>() {
-                    @Override
-                    public void onResponse(Call<Book> c, Response<Book> resp) {
-                        Book newBook = resp.body();
-                        herokuText.setText("Created Book with ISBN: " + newBook.isbn);
-                    }
-
-                    @Override
-                    public void onFailure(Call<Book> c, Throwable t) {
-                        t.printStackTrace();
-                        herokuText.setText(t.getMessage());
-                    }
-                });
-            }
-        });
     }
 }

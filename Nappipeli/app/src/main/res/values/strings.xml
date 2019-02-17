@@ -16,4 +16,6 @@
     <string name="string_refresh">Refresh</string>
     <string name="string_increase">Increase Value</string>
     <string name="title_activity_set_nickname">Set Nickname</string>
+    <string name="string_nickname_too_long">The nickname can be %d characters or less.</string>
+    <string name="string_nickname_empty">The nickname cannot be empty.</string>
 </resources>
