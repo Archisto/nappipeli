@@ -5,7 +5,7 @@ An online button pushing game.
 ## Installation
 1. Connect your Android phone to your PC.
 2. Open the phone's folder on your PC.
-3. Copy the file 'app-debug.apk' from Nappipeli\app\build\outputs\apk\debug to the folder.
+3. Copy the file 'app-debug.apk' from https://github.com/Archisto/nappipeli > Build to the folder.
 4. Tap the APK file on your phone to begin installation.
 
 ## Running the game
