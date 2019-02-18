@@ -13,6 +13,6 @@ An online button pushing game.
 2. Launch Nappipeli app on your phone.
 
 ## Playing the game
-1. Tap the 'Increase Value' button to raise a counter's value. If you hit a certain value before anyone else does, you'll win a prize.
-2. Change your nickname by selecting 'Set Nickname' from the navigation bar and typing a name on the text input that is now visible.
-3. See the last 10 winners by selecting 'Winners' from the navigation bar.
+- Tap the 'Increase Value' button to raise a counter's value. If you hit a certain value before anyone else does, you'll win a prize.
+- Change your nickname by selecting 'Set Nickname' from the navigation bar and typing a name on the text input that is now visible. Tap 'Submit' after you're typed your nickname.
+- See the last 10 winners by selecting 'Winners' from the navigation bar.
