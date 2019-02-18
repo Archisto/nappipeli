@@ -87,8 +87,7 @@ public class SetNicknameActivity extends AppCompatActivity {
         Bundle extras = getIntent().getExtras();
         if (extras != null) {
             nickname = extras.getString("nickname");
-        }
-        else {
+        } else {
             nickname = "Anonymous";
         }
         nicknameText.setText(String.format(getString(R.string.string_username), nickname));
@@ -111,15 +110,13 @@ public class SetNicknameActivity extends AppCompatActivity {
                     getString(R.string.string_nickname_empty),
                     Snackbar.LENGTH_SHORT);
             snackbar.show();
-        }
-        else if (newNick.length() > nicknameMaxLength) {
+        } else if (newNick.length() > nicknameMaxLength) {
             Snackbar snackbar = Snackbar.make(
                     v,
                     String.format(getString(R.string.string_nickname_too_long), nicknameMaxLength),
                     Snackbar.LENGTH_SHORT);
             snackbar.show();
-        }
-        else {
+        } else {
             nickname = newNick;
             nicknameText.setText(String.format(getString(R.string.string_username), nickname));
         }

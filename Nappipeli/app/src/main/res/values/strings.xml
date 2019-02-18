@@ -4,11 +4,9 @@
     <string name="title_dashboard">Dashboard</string>
     <string name="title_notifications">Notifications</string>
     <string name="title_increase">Increase</string>
-    <string name="title_winners">Winners</string>
-    <string name="title_username">Set Nickname</string>
     <string name="string_username">Nickname: %s</string>
     <string name="string_counter">-- %d --</string>
-    <string name="string_prize">You won %s</string>
+    <string name="string_prize">You won %s!</string>
     <string name="string_pressesUntilPrize">%d more presses until next prize!</string>
     <string name="string_inputUsername">your nickname</string>
     <string name="string_submit">Submit</string>
@@ -18,4 +16,6 @@
     <string name="title_activity_set_nickname">Set Nickname</string>
     <string name="string_nickname_too_long">The nickname can be %d characters or less.</string>
     <string name="string_nickname_empty">The nickname cannot be empty.</string>
+    <string name="string_prize_tier">PRIZES</string>
+    <string name="string_winners">WINNERS (last 10)</string>
 </resources>

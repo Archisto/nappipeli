@@ -23,6 +23,7 @@ public class WinnersActivity extends AppCompatActivity {
 
     private String nickname;
     private TextView allWinners;
+    private TextView prizeTiers;
     private Button refreshButton;
     private TextView nicknameText;
     private BottomNavigationView navigation;
@@ -55,6 +56,7 @@ public class WinnersActivity extends AppCompatActivity {
         setContentView(R.layout.activity_winners);
 
         allWinners = (TextView) findViewById(R.id.text_allWinners);
+        prizeTiers = (TextView) findViewById(R.id.text_prizeTiers);
         refreshButton = (Button) findViewById(R.id.button_refresh);
         nicknameText = (TextView) findViewById(R.id.text_nickname);
         navigation = (BottomNavigationView) findViewById(R.id.navigation);
@@ -66,6 +68,8 @@ public class WinnersActivity extends AppCompatActivity {
         initService();
         initNickname();
         initRefreshButton();
+
+        showAllWinnersFromDatabase();
     }
 
     private void onHomeNavSelected() {
@@ -109,8 +113,7 @@ public class WinnersActivity extends AppCompatActivity {
         Bundle extras = getIntent().getExtras();
         if (extras != null) {
             nickname = extras.getString("nickname");
-        }
-        else {
+        } else {
             nickname = "Anonymous";
         }
         nicknameText.setText(String.format(getString(R.string.string_username), nickname));
@@ -130,36 +133,63 @@ public class WinnersActivity extends AppCompatActivity {
         createCall.enqueue(new Callback<List<Winner>>() {
             @Override
             public void onResponse(Call<List<Winner>> c, Response<List<Winner>> resp) {
-                allWinners.setText("ALL WINNERS by NICKNAME:\n");
-                for (Winner w : resp.body()) {
-                    allWinners.append(w.nickname + "\n");
+                allWinners.setText(getString(R.string.string_winners));
+                allWinners.append("\n");
+                prizeTiers.setText(getString(R.string.string_prize_tier));
+                prizeTiers.append("\n");
+                for (int i = 0; i < 10 && i < resp.body().size(); i++) {
+                    allWinners.append(resp.body().get(i).nickname + "\n");
+                    prizeTiers.append(getPrizeName(resp.body().get(i).prizeTier) + "\n");
                 }
+                Log.d("npeli", "Refreshed Winner list");
             }
 
             @Override
             public void onFailure(Call<List<Winner>> c, Throwable t) {
                 t.printStackTrace();
                 allWinners.setText(t.getMessage());
+                Log.e("npeli", "Refreshing Winner list failed");
             }
         });
     }
 
-    private void showAllBooksFromDatabase() {
-        Call<List<Book>> createCall = serviceTest.all();
-        createCall.enqueue(new Callback<List<Book>>() {
+    private void showAllCountersFromDatabase() {
+        Call<List<Counter>> createCall = service.counters();
+        createCall.enqueue(new Callback<List<Counter>>() {
             @Override
-            public void onResponse(Call<List<Book>> c, Response<List<Book>> resp) {
-                allWinners.setText("ALL BOOKS by ISBN:\n");
-                for (Book b : resp.body()) {
-                    allWinners.append(b.isbn + "\n");
+            public void onResponse(Call<List<Counter>> c, Response<List<Counter>> resp) {
+                allWinners.setText("COUNTERS\n");
+                for (Counter w : resp.body()) {
+                    allWinners.append(w.value + "\n");
                 }
             }
 
             @Override
-            public void onFailure(Call<List<Book>> c, Throwable t) {
+            public void onFailure(Call<List<Counter>> c, Throwable t) {
                 t.printStackTrace();
                 allWinners.setText(t.getMessage());
             }
         });
     }
+
+    private String getPrizeName(int prizeTier) {
+        String prizeName = "Nothing";
+        switch (prizeTier) {
+            case 1: {
+                prizeName = "Small";
+                break;
+            }
+            case 2: {
+                prizeName = "Medium";
+                break;
+            }
+            case 3: {
+                prizeName = "Large";
+                break;
+            }
+        }
+
+        return prizeName;
+    }
+
 }
